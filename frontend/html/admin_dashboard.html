@@ -16,13 +16,41 @@
 <body>
 
 <div class="w3-bar w3-teal w3-card">
-    <span class="w3-bar-item"><b>CONTROL DE ADMINISTRACIÓN</b></span>
+    <a class="w3-bar-item" href="/" style="text-decoration:none"><b>BIBLIOTECH · ADMINISTRACIÓN</b></a>
     <button class="w3-bar-item w3-button w3-right btn-logout">Salir</button>
 </div>
 
 <div class="w3-container w3-padding-32">
-    <h2 class="w3-text-white">Panel de Clientes Registrados</h2>
-    <p>Visualización global del sistema y limpieza de cuentas.</p>
+    <h2 class="w3-text-white">Cuentas del sistema</h2>
+    <p>Gestiona usuarios, roles y documentos de toda la biblioteca.</p>
+
+    <section class="w3-card-4 vault-card w3-padding w3-round w3-margin-bottom">
+        <h3 class="w3-text-teal">Crear cuenta</h3>
+        <form id="createUserForm" class="w3-row-padding">
+            <div class="w3-col l3 m6 s12">
+                <label>Usuario</label>
+                <input class="w3-input w3-border w3-round w3-transparent w3-text-white" id="newUsername" maxlength="50" required>
+            </div>
+            <div class="w3-col l3 m6 s12">
+                <label>Contraseña (8 caracteres mínimo)</label>
+                <input class="w3-input w3-border w3-round w3-transparent w3-text-white" id="newPassword" type="password" minlength="8" required>
+            </div>
+            <div class="w3-col l2 m4 s6">
+                <label>Tipo de cuenta</label>
+                <select class="w3-select w3-border w3-round w3-black w3-text-white" id="newRole">
+                    <option value="client">Estudiante</option>
+                    <option value="teacher">Docente</option>
+                </select>
+            </div>
+            <div class="w3-col l2 m4 s6" id="teacherSubjectField" style="display:none">
+                <label for="newSubject">Materia</label>
+                <input class="w3-input w3-border w3-round w3-transparent w3-text-white" id="newSubject" maxlength="100" placeholder="Ej. Matemática">
+            </div>
+            <div class="w3-col l2 m4 s12 w3-padding-16">
+                <button class="w3-button w3-teal w3-round w3-block" type="submit">Crear</button>
+            </div>
+        </form>
+    </section>
 
     <div class="w3-responsive">
         <table class="w3-table w3-striped w3-bordered vault-card">
@@ -31,6 +59,7 @@
                     <th>ID</th>
                     <th>Username</th>
                     <th>Rol</th>
+                    <th>Materia</th>
                     <th>Fecha Registro</th>
                     <th>Acciones</th>
                 </tr>
@@ -40,6 +69,27 @@
             </tbody>
         </table>
     </div>
+
+    <section class="w3-margin-top">
+        <h2 class="w3-text-white">Documentos de la biblioteca</h2>
+        <p>Vista completa de los archivos y las cuentas que los publicaron.</p>
+        <div class="w3-responsive">
+            <table class="w3-table w3-striped w3-bordered vault-card">
+                <thead>
+                    <tr class="w3-dark-grey">
+                        <th>Título</th>
+                        <th>Autor</th>
+                        <th>Categoría</th>
+                        <th>Materia</th>
+                        <th>Publicado por</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="booksTableBody"></tbody>
+            </table>
+        </div>
+    </section>
 </div>
 
 <script src="../js/services/api_service.js"></script>

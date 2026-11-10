@@ -16,6 +16,7 @@
  */
  const jwt = require('jsonwebtoken');
  const i18n = require('../utils/i18n/i18n'); // Inyección del gestor de idiomas
+ const userRepository = require('../repositories/user_repository');
  
  /** 
   * @brief En producción, siempre usar variables de entorno (.env) para evitar 
@@ -51,7 +52,7 @@
          // El token o authHeader suele venir como "Bearer <token>", aquí extraemos exclusivamente el token
          const pureToken = authHeader.split(" ")[1];
  
-         jwt.verify(pureToken, SECRET_KEY, (err, decoded) => 
+         jwt.verify(pureToken, SECRET_KEY, async (err, decoded) => 
          {
              if (err) 
              {
@@ -59,10 +60,18 @@
                  return res.status(401).json({ message });
              }
              
-             // Guardamos la info del usuario decodificada en el request para persistirla en el ciclo de vida de la petición
-             req.userId = decoded.id;
-             req.userRole = decoded.role; // Extraemos el rol del token
-             next(); // Continuar al siguiente controlador o middleware
+             try {
+                 // El rol puede cambiar desde el panel admin luego de emitir el JWT.
+                 const currentRole = await userRepository.findRoleById(decoded.id);
+                 if (!currentRole) {
+                     return res.status(401).json({ message: 'La cuenta ya no tiene un rol activo. Iniciá sesión nuevamente.' });
+                 }
+                 req.userId = decoded.id;
+                 req.userRole = currentRole;
+                 next();
+             } catch (error) {
+                 next(error);
+             }
          });
      },
  
@@ -90,7 +99,21 @@
          }
          
          next();
-     }    
+     },
+
+     isTeacher: (req, res, next) => {
+         if (req.userRole !== 'teacher') {
+             return res.status(403).json({ message: 'Esta acción requiere una cuenta docente.' });
+         }
+         next();
+     },
+
+     isStudent: (req, res, next) => {
+         if (req.userRole !== 'client') {
+             return res.status(403).json({ message: 'Esta acción requiere una cuenta de estudiante.' });
+         }
+         next();
+     }
  };
  
  module.exports = authMiddleware;

@@ -13,10 +13,14 @@
  
  /**
   * @route GET /
-  * @brief Redirecciona la raíz al Login por defecto.
+ * @brief Presenta Bibliotech a quienes visitan el sitio.
   */
  router.get('/', (req, res) => {
-     res.sendFile(path.join(__dirname, '../../frontend/html/login.html'));
+     res.sendFile(path.join(__dirname, '../../frontend/html/home.html'));
+ });
+
+ router.get('/home', (req, res) => {
+     res.sendFile(path.join(__dirname, '../../frontend/html/home.html'));
  });
  
  // --- PANTALLAS DE IDENTIDAD ---
@@ -38,6 +42,10 @@
  router.get('/admin_dashboard', (req, res) => {
      res.sendFile(path.join(__dirname, '../../frontend/html/admin_dashboard.html'));
  });
+
+ router.get('/teacher_dashboard', (req, res) => {
+     res.sendFile(path.join(__dirname, '../../frontend/html/teacher_dashboard.html'));
+ });
  
  /**
   * @brief Middleware "Catch-All" (Atrapa-todo) para el manejo de Errores 404 en la UI.
@@ -51,7 +59,7 @@
      }
  
      // Si el usuario teclea una URL inventada (ej. /biblioteca_secreta), lo forzamos a volver al login
-     res.status(404).sendFile(path.join(__dirname, '../../frontend/html/login.html'));
+     res.status(404).sendFile(path.join(__dirname, '../../frontend/html/home.html'));
  });
  
  module.exports = router;

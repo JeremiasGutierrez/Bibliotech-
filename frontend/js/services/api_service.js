@@ -75,5 +75,28 @@
          }
          
          return result;
+     },
+
+     async download(endpoint, filename = null) {
+         const token = authHelper.getToken();
+         const response = await fetch(`${API_URL}${endpoint}`, {
+             headers: token ? { Authorization: `Bearer ${token}` } : {}
+         });
+         if (response.status === 401) authHelper.logout();
+         if (!response.ok) {
+             let result = {};
+             try { result = await response.json(); } catch (_) { /* respuesta sin JSON */ }
+             throw new Error(result.message || 'No se pudo descargar el archivo.');
+         }
+         const objectUrl = URL.createObjectURL(await response.blob());
+         if (!filename) return objectUrl;
+         const link = document.createElement('a');
+         link.href = objectUrl;
+         link.download = filename;
+         document.body.appendChild(link);
+         link.click();
+         link.remove();
+         window.setTimeout(() => URL.revokeObjectURL(objectUrl), 60000);
+         return objectUrl;
      }
  };

@@ -31,6 +31,11 @@
                  window.location.href = '/admin_dashboard';
                  return; // Early return para detener la ejecución
              }
+
+             if (data.role === 'teacher') {
+                 window.location.href = '/teacher_dashboard';
+                 return;
+             }
              
              window.location.href = '/client_dashboard';
          } 

@@ -29,6 +29,16 @@
          const [rows] = await db.execute('CALL sp_find_user_by_username(?)', [username]);
          return rows[0][0]; 
      }
+
+     /** Obtiene el rol vigente para no depender de un claim de sesión desactualizado. */
+     async findRoleById(userId)
+     {
+         const [rows] = await db.execute(
+             'SELECT r.name AS role FROM users_roles ur JOIN roles r ON r.id = ur.role_id WHERE ur.user_id = ? ORDER BY r.id LIMIT 1',
+             [userId]
+         );
+         return rows[0]?.role;
+     }
  
      /**
       * @brief Crea un nuevo usuario y le asigna un rol en una operación atómica.
@@ -37,9 +47,9 @@
       * @param {string} role - Nombre del rol a asignar (por defecto 'client').
       * @returns {Promise<number>} ID autogenerado del usuario en la base de datos.
       */
-     async create(username, hashedPassword, role = 'client') 
+     async create(username, hashedPassword, role = 'client', subject = null) 
      {
-         const [rows] = await db.execute('CALL sp_create_user(?, ?, ?)',[username, hashedPassword, role]);
+         const [rows] = await db.execute('CALL sp_create_user(?, ?, ?, ?)',[username, hashedPassword, role, subject]);
          return rows[0][0].insertId;
      }
      
@@ -51,6 +61,17 @@
      { 
          const [rows] = await db.execute('CALL sp_find_all_users()'); 
          return rows[0]; 
+     }
+
+     async updateRole(userId, role, subject = null)
+     {
+         await db.execute('CALL sp_update_user_role(?, ?, ?)', [userId, role, subject]);
+     }
+
+     async countByRole(role)
+     {
+         const [rows] = await db.execute('CALL sp_count_users_by_role(?)', [role]);
+         return Number(rows[0][0].total);
      }
  
      /**

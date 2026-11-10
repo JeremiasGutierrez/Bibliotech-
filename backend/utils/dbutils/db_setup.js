@@ -13,33 +13,37 @@
  const path = require('path');
  
  /**
-  * @brief Lee el archivo init.sql, lo parsea y lo ejecuta de forma nativa contra el motor MySQL.
-  * @details Este script es altamente pedagógico ya que enseña cómo automatizar la preparación 
-  * de entornos (Infrastructure as Code) sin depender de herramientas gráficas como phpMyAdmin.
+ * @brief Aplica de forma repetible el esquema de Bibliotech sin borrar la base existente.
   */
  async function run() {
      console.log("=================================================");
      console.log("⚡ Creando e Inicializando Base de Datos...");
      console.log("=================================================");
  
-     const host = process.env.DB_HOST || 'localhost';
-     const rootUser = 'root'; 
-     const rootPass = ''; // Por defecto en servidores de desarrollo (XAMPP, Laragon, etc.)
+     const host = process.env.DB_ROOT_HOST || process.env.DB_HOST || '127.0.0.1';
+     const rootUser = process.env.DB_ROOT_USER || 'root';
+     const rootPass = process.env.DB_ROOT_PASS || '';
  
      let connection;
      try {
          // Conectar como root para poder crear la DB y otorgar permisos
          connection = await mysql.createConnection({
              host: host,
+             port: Number(process.env.DB_ROOT_PORT || process.env.DB_PORT) || 3306,
              user: rootUser,
              password: rootPass,
              multipleStatements: true // Habilitar múltiples consultas en una sola llamada
          });
+
+         const [grantMode] = await connection.query("SHOW VARIABLES LIKE 'skip_grant_tables'");
+         if (String(grantMode[0]?.Value).toUpperCase() === 'ON') {
+             throw new Error('MariaDB está en modo skip-grant-tables. Reinícialo en modo normal antes de preparar Bibliotech.');
+         }
          
-         const sqlPath = path.join(__dirname, '../config/init.sql');
+         const sqlPath = path.join(__dirname, '../../config/init.sql');
          const sqlContent = fs.readFileSync(sqlPath, 'utf8');
  
-         console.log("📂 Leyendo init.sql y limpiando sintaxis del cliente (DELIMITER)...");
+         console.log("📂 Aplicando init.sql (no elimina datos existentes)...");
  
          // El comando DELIMITER es una instrucción específica del cliente CLI de MySQL (como phpMyAdmin)
          // y arroja error de sintaxis cuando se envía directamente a través de drivers de programación.
@@ -50,11 +54,13 @@
              .replace(/\/\//g, ';');
  
          await connection.query(sqlClean);
-         console.log("✅ Base de datos 'bibliotech' creada y configurada exitosamente.");
-         console.log("✅ Usuario de base de datos 'bibliotech' configurado.");
+         console.log("✅ Esquema de Bibliotech aplicado correctamente.");
+         console.log("✅ Si la base ya existía, sus tablas y datos existentes se conservaron.");
      } catch (error) {
          console.error("❌ Error al configurar la base de datos:");
-         console.error(error.message);
+         console.error(error.message || error.code || error.name);
+         if (error.errors) error.errors.forEach(item => console.error(item.code || item.message));
+         process.exitCode = 1;
          console.log("\n👉 Intenta importar manualmente el archivo 'backend/config/init.sql' desde phpMyAdmin o MySQL Workbench.");
      } finally {
          if (connection) {

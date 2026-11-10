@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bibliotech - Panel docente</title>
+    <link rel="stylesheet" href="../css/w3.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="icon" type="image/png" href="../img/favicon.png">
+</head>
+<body>
+    <div class="w3-bar w3-teal w3-card">
+        <a class="w3-bar-item" href="/" style="text-decoration:none"><b>BIBLIOTECH · DOCENTES</b></a>
+        <button class="w3-bar-item w3-button w3-right btn-logout">Salir</button>
+    </div>
+    <main class="w3-content w3-padding-32" style="max-width:900px">
+        <section class="w3-card-4 vault-card w3-padding w3-round w3-margin-bottom">
+            <h2 class="w3-text-teal">Subir material a la biblioteca</h2>
+            <p>El documento quedará disponible para los estudiantes y les llegará un aviso automático.</p>
+            <form id="bookUploadForm">
+                <label for="bookTitle">Título del documento</label>
+                <input class="w3-input w3-border w3-round w3-transparent w3-text-white w3-margin-bottom" id="bookTitle" maxlength="100" required>
+                <label for="bookAuthor">Autor o materia</label>
+                <input class="w3-input w3-border w3-round w3-transparent w3-text-white w3-margin-bottom" id="bookAuthor" maxlength="100" required>
+                <div class="w3-row-padding w3-padding-0">
+                    <div class="w3-col m8 s12">
+                        <label for="bookCategory">Categoría</label>
+                        <input class="w3-input w3-border w3-round w3-transparent w3-text-white w3-margin-bottom" id="bookCategory" maxlength="50" required>
+                    </div>
+                    <div class="w3-col m4 s12">
+                        <label for="bookPages">Páginas</label>
+                        <input class="w3-input w3-border w3-round w3-transparent w3-text-white w3-margin-bottom" id="bookPages" type="number" min="1" value="1" required>
+                    </div>
+                </div>
+                <label for="bookFile">Archivo PDF (hasta 15 MB)</label>
+                <input class="w3-input w3-border w3-round w3-margin-bottom" id="bookFile" type="file" accept="application/pdf,.pdf" required>
+                <button class="w3-button w3-teal w3-round" type="submit">Subir y avisar a estudiantes</button>
+            </form>
+        </section>
+
+        <section class="w3-card-4 vault-card w3-padding w3-round">
+            <h2 class="w3-text-teal">Publicar para los estudiantes</h2>
+            <p>El aviso aparecerá en el panel de cada estudiante y quedará guardado en sus notificaciones.</p>
+            <form id="announcementForm">
+                <label for="announcementTitle">Título</label>
+                <input class="w3-input w3-border w3-round w3-transparent w3-text-white w3-margin-bottom" id="announcementTitle" maxlength="120" required>
+                <label for="announcementContent">Noticia o indicaciones</label>
+                <textarea class="w3-input w3-border w3-round w3-transparent w3-text-white w3-margin-bottom" id="announcementContent" rows="6" required></textarea>
+                <label for="announcementFile">Adjuntar material PDF (opcional, hasta 15 MB)</label>
+                <input class="w3-input w3-border w3-round w3-margin-bottom" id="announcementFile" type="file" accept="application/pdf,.pdf">
+                <button class="w3-button w3-teal w3-round" type="submit">Publicar aviso</button>
+            </form>
+        </section>
+    </main>
+    <script src="../js/services/api_service.js"></script>
+    <script src="../js/components/ui_handlers.js"></script>
+    <script src="../js/utils/auth_helper.js"></script>
+    <script src="../js/front_controllers/teacher_front_controller.js"></script>
+</body>
+</html>

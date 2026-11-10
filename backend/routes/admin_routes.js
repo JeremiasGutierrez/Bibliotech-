@@ -10,6 +10,7 @@
  const express = require('express');
  const router = express.Router();
  const adminController = require('../controllers/admin_controller');
+ const bookController = require('../controllers/book_controller');
  
  // Importamos los middlewares centralizados de seguridad
  const { verifyToken, isAdmin } = require('../middleware/auth_middleware');
@@ -29,6 +30,13 @@
   * @brief Listar todos los usuarios registrados.
   */
  router.get('/users', adminController.getAllUsers);
+ router.post('/users', adminController.createUser);
+ router.patch('/users/:id/role', adminController.updateUserRole);
+ router.get('/books', adminController.getAllBooks);
+ router.get('/books/:id/file', bookController.downloadBook);
+ router.delete('/books/:id', adminController.deleteBook);
+ router.get('/announcements/:id/file', adminController.downloadAnnouncementAttachment);
+ router.delete('/announcements/:id', adminController.deleteAnnouncement);
  
  /**
   * @route DELETE /api/admin/users/:id

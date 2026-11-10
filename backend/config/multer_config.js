@@ -39,7 +39,8 @@
      filename: (req, file, cb) => {
          // Prevención de colisiones: Se adjunta un Timestamp (Date.now) al nombre original 
          // para garantizar que dos usuarios subiendo un archivo llamado "libro.pdf" no se sobrescriban.
-         cb(null, Date.now() + '-' + file.originalname);
+         const safeName = path.basename(file.originalname).replace(/[^\p{L}\p{N}._-]/gu, '_');
+         cb(null, `${Date.now()}-${safeName}`);
      }
  });
  
@@ -70,5 +71,8 @@
      }
  });
  
- // El string 'pdfFile' DEBE coincidir exactamente con el atributo name="..." en el HTML (o clave FormData)
- module.exports = upload.single('pdfFile');
+// El nombre de campo coincide con el FormData de cada pantalla.
+const bookUpload = upload.single('pdfFile');
+bookUpload.announcement = upload.single('attachment');
+
+module.exports = bookUpload;

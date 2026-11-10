@@ -1,145 +1,105 @@
-/**
- * @file books_front_controller.js
- * @brief Controlador frontend para gestionar la carga, listado y lectura de documentos.
- * @project Bibliotech
- * @author Tecnologías Informáticas B - Facultad de Ingeniería - UNMdP
- * @license http://www.gnu.org/licenses/gpl.txt GNU GPL 3.0
- * @date Octubre 2026
- */
+let allBooks = [];
 
- document.addEventListener('DOMContentLoaded', loadBooks);
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('subjectFilter').addEventListener('change', () => renderBooksTable());
+    loadBooks();
+});
 
- async function loadBooks() 
- {
-     try 
-     {
-         const books = await apiService.request('/books/my-books', 'GET');
-         renderBooksTable(books);
-     } 
-     catch (error) 
-     {
-         showModal('Error', 'No se pudieron cargar los documentos: ' + error.message);
-     }
- }
- 
- function renderBooksTable(books) 
- {
-     const tbody = document.getElementById('booksTableBody');
-     tbody.replaceChildren();
- 
-     books.forEach(b => 
-     {
-         const row = document.createElement('tr');
- 
-         const tdTitle = document.createElement('td');
-         const boldTitle = document.createElement('b');
-         boldTitle.textContent = b.title;
-         tdTitle.appendChild(boldTitle);
-         
-         const tdAuthor = document.createElement('td');
-         tdAuthor.textContent = b.author;
- 
-         const tdCategory = document.createElement('td');
-         const spanCat = document.createElement('span');
-         spanCat.className = 'w3-tag w3-round w3-black';
-         spanCat.textContent = b.category;
-         tdCategory.appendChild(spanCat);
- 
-         const tdPages = document.createElement('td');
-         tdPages.textContent = b.pages;
- 
-         const tdReading = document.createElement('td');
-         
-         const btnView = document.createElement('button');
-         btnView.className = 'w3-button w3-teal w3-tiny w3-round w3-margin-right';
-         btnView.textContent = 'Visualizar';
-         btnView.addEventListener('click', () => 
-         {
-             showPdfModal(b.title, b.file_path);
-         });
-         tdReading.appendChild(btnView);
- 
-         // Uso del atributo nativo 'download' para forzar descarga en lugar de abrir el archivo en el navegador
-         const linkDownload = document.createElement('a');
-         linkDownload.className = 'w3-button w3-dark-grey w3-tiny w3-round';
-         linkDownload.textContent = 'Descargar';
-         linkDownload.href = b.file_path;
-         linkDownload.setAttribute('download', `${b.title}.pdf`);
-         tdReading.appendChild(linkDownload);
- 
-         const tdActions = document.createElement('td');
-         const btnDelete = document.createElement('button');
-         btnDelete.className = 'w3-button w3-red w3-tiny w3-round';
-         btnDelete.textContent = 'Borrar';
-         btnDelete.addEventListener('click', () => 
-         {
-             deleteBook(b.id);
-         });
-         tdActions.appendChild(btnDelete);
- 
-         row.append(tdTitle, tdAuthor, tdCategory, tdPages, tdReading, tdActions);
-         tbody.appendChild(row);
-     });
- }
- 
- async function deleteBook(id) 
- {
-     if (!confirm('¿Estás seguro de eliminar este documento de tu biblioteca?')) 
-     {
-         return;
-     }
-     
-     try 
-     {
-         await apiService.request(`/books/${id}`, 'DELETE');
-         showModal('Eliminado', 'El documento ha sido borrado.');
-         loadBooks();
-     } 
-     catch (error) 
-     {
-         showModal('Error', error.message);
-     }
- }
- 
- const uploadForm = document.getElementById('uploadForm');
- 
- if (uploadForm) 
- {
-     uploadForm.addEventListener('submit', async (e) => 
-     {
-        /**
-         * @see Cancela el evento si este es cancelable, sin detener el 
-         * resto del funcionamiento del evento, es decir, puede ser llamado 
-         * de nuevo. En este caso evita que se envíe el formulario al presionar
-         * el botón de tipo "submit", para poder trabajar previamente con el contenido
-         * del formulario representado por el objeto de tipo FormData()
-         */ 
-        e.preventDefault();
-         
-        /**
-         * @note Objeto FormData: Esencial para enviar archivos binarios al backend.
-         * Codifica automáticamente los campos en el formato 'multipart/form-data'.
-         */
-        const formData = new FormData();
-        formData.append('title', document.getElementById('title').value);
-        formData.append('author', document.getElementById('author').value);
-        formData.append('category', document.getElementById('category').value);
-        formData.append('pages', document.getElementById('pages').value);
-        
-        // files[0] accede al binario crudo del archivo seleccionado en el input de tipo file
-        formData.append('pdfFile', document.getElementById('pdfFile').files[0]);
+async function loadBooks() {
+    try {
+        allBooks = await apiService.request('/books/my-books');
+        populateSubjectFilter(allBooks);
+        renderBooksTable();
+    } catch (error) {
+        showModal('No se pudo cargar la biblioteca', error.message);
+    }
+}
 
-        try 
-        {
-            // Pasamos true como cuarto parámetro para indicar que enviamos FormData
-            await apiService.request('/books/upload', 'POST', formData, true);
-            showModal('Éxito', 'Documento guardado e indexado correctamente.');
-            uploadForm.reset();
-            loadBooks();
-        } 
-        catch (error) 
-        {
-            showModal('Error al cargar', error.message);
-        }
-     });
- }
+function populateSubjectFilter(books) {
+    const filter = document.getElementById('subjectFilter');
+    const selected = filter.value;
+    const subjects = [...new Set(books.map(book => book.subject || 'Sin materia'))]
+        .sort((a, b) => a.localeCompare(b, 'es'));
+    filter.replaceChildren();
+
+    const allOption = document.createElement('option');
+    allOption.value = '';
+    allOption.textContent = 'Todas las materias';
+    filter.appendChild(allOption);
+
+    subjects.forEach(subject => {
+        const option = document.createElement('option');
+        option.value = subject;
+        option.textContent = subject;
+        filter.appendChild(option);
+    });
+    filter.value = subjects.includes(selected) ? selected : '';
+}
+
+function renderBooksTable() {
+    const tbody = document.getElementById('booksTableBody');
+    const selectedSubject = document.getElementById('subjectFilter').value;
+    const filteredBooks = allBooks
+        .filter(book => !selectedSubject || (book.subject || 'Sin materia') === selectedSubject)
+        .slice()
+        .sort((a, b) => {
+            const bySubject = (a.subject || 'Sin materia').localeCompare(b.subject || 'Sin materia', 'es');
+            return bySubject || a.title.localeCompare(b.title, 'es');
+        });
+
+    document.getElementById('bookCount').textContent =
+        `${filteredBooks.length} ${filteredBooks.length === 1 ? 'documento' : 'documentos'}`;
+    tbody.replaceChildren();
+
+    if (!filteredBooks.length) {
+        const row = document.createElement('tr');
+        const cell = document.createElement('td');
+        cell.colSpan = 7;
+        cell.textContent = selectedSubject
+            ? `Todavía no hay documentos para ${selectedSubject}.`
+            : 'Todavía no hay documentos compartidos.';
+        row.appendChild(cell);
+        tbody.appendChild(row);
+        return;
+    }
+
+    filteredBooks.forEach(book => {
+        const row = document.createElement('tr');
+        [book.subject || 'Sin materia', book.title, book.author, book.category, book.pages, book.owner || 'Tu biblioteca'].forEach(value => {
+            const cell = document.createElement('td');
+            cell.textContent = value ?? '';
+            row.appendChild(cell);
+        });
+
+        const actions = document.createElement('td');
+        const view = document.createElement('button');
+        view.className = 'w3-button w3-teal w3-tiny w3-round w3-margin-right';
+        view.textContent = 'Leer';
+        view.addEventListener('click', () => openBook(book));
+
+        const download = document.createElement('button');
+        download.className = 'w3-button w3-dark-grey w3-tiny w3-round';
+        download.textContent = 'Descargar';
+        download.addEventListener('click', () => downloadBook(book));
+        actions.append(view, download);
+        row.appendChild(actions);
+        tbody.appendChild(row);
+    });
+}
+
+async function openBook(book) {
+    try {
+        const url = await apiService.download(`/books/${book.id}/file`);
+        showPdfModal(book.title, url);
+    } catch (error) {
+        showModal('No se pudo abrir el documento', error.message);
+    }
+}
+
+async function downloadBook(book) {
+    try {
+        await apiService.download(`/books/${book.id}/file?download=1`, `${book.title}.pdf`);
+    } catch (error) {
+        showModal('No se pudo descargar el documento', error.message);
+    }
+}

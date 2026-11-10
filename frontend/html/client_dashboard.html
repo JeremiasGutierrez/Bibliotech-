@@ -8,7 +8,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Bibliotech - Mis Documentos</title>
+    <title>Bibliotech - Biblioteca de materiales</title>
     <link rel="stylesheet" href="../css/w3.css">
     <link rel="stylesheet" href="../css/style.css">
     <link rel="icon" type="image/png" href="../img/favicon.png">
@@ -17,69 +17,47 @@
 
 <!-- Barra de navegación superior -->
 <div class="w3-bar w3-black w3-border-bottom w3-border-dark-grey">
-    <span class="w3-bar-item w3-text-teal"><b>BIBLIOTECH</b></span>
+    <a class="w3-bar-item w3-text-teal" href="/" style="text-decoration:none"><b>BIBLIOTECH · ESTUDIANTE</b></a>
     <!-- La clase 'btn-logout' es detectada y enlazada globalmente por auth_helper.js -->
     <button class="w3-bar-item w3-button w3-right btn-logout">Salir</button>
 </div>
 
 <div class="w3-container w3-padding-32">
-    <div class="w3-row-padding">
-        
-        <!-- Formulario de Subida (Columna izquierda responsiva) -->
-        <div class="w3-col l4 m5 s12">
-            <div class="w3-card-4 vault-card w3-padding w3-round">
-                <h3 class="w3-text-teal">Subir Nuevo PDF</h3>
-                <form id="uploadForm">
-                    <label>Título del Documento</label>
-                    <input class="w3-input w3-border w3-round w3-transparent w3-text-white" type="text" id="title" required>
-                    
-                    <label class="w3-margin-top w3-show">Autor</label>
-                    <input class="w3-input w3-border w3-round w3-transparent w3-text-white" type="text" id="author" required>
-
-                    <label class="w3-margin-top w3-show">Categoría</label>
-                    <select class="w3-select w3-border w3-round w3-black w3-text-white" id="category">
-                        <option value="Novela">Novela</option>
-                        <option value="Ciencia Ficción">Ciencia Ficción</option>
-                        <option value="Técnico / Académico">Técnico / Académico</option>
-                        <option value="Historia">Historia</option>
-                        <option value="Poesía">Poesía</option>
-                    </select>
-
-                    <label class="w3-margin-top w3-show">Páginas</label>
-                    <input class="w3-input w3-border w3-round w3-transparent w3-text-white" type="number" id="pages" value="10" min="1" required>
-
-                    <label class="w3-margin-top w3-show">Archivo de Documento (.PDF)</label>
-                    <input class="w3-input w3-border w3-round" type="file" id="pdfFile" accept="application/pdf" required>
-
-                    <button type="submit" class="w3-button w3-teal w3-block w3-round-large w3-margin-top">
-                        <b>CARGAR A LA BIBLIOTECA</b>
-                    </button>
-                </form>
-            </div>
+    <section class="w3-card-4 vault-card w3-padding w3-round w3-margin-bottom" aria-live="polite">
+        <div class="w3-row">
+            <div class="w3-col s9"><h3 class="w3-text-teal">Avisos de tus docentes</h3></div>
+            <div class="w3-col s3 w3-right-align"><span class="w3-tag w3-red w3-round" id="unreadCount">0 sin leer</span></div>
         </div>
-
-        <!-- Listado de Documentos dinámico (Columna derecha) -->
-        <div class="w3-col l8 m7 s12">
-            <h3 class="w3-text-white">Mi Biblioteca Privada</h3>
-            <div class="w3-responsive">
-                <table class="w3-table w3-striped w3-bordered vault-card">
-                    <thead>
-                        <tr class="w3-teal">
-                            <th>Título</th>
-                            <th>Autor</th>
-                            <th>Categoría</th>
-                            <th>Páginas</th>
-                            <th>Lectura</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <!-- Contenedor vacío donde books_front_controller.js inyectará filas <tr> de forma segura -->
-                    <tbody id="booksTableBody">
-                    </tbody>
-                </table>
+        <div id="announcementList"><p class="w3-text-grey">Cargando avisos...</p></div>
+    </section>
+    <div class="w3-container">
+        <h3 class="w3-text-white">Biblioteca de materiales</h3>
+        <p class="w3-text-grey">Leé en línea o descargá los documentos que compartieron tus docentes.</p>
+        <div class="w3-row-padding w3-padding-16 vault-card w3-round w3-margin-bottom">
+            <div class="w3-col m5 s12">
+                <label for="subjectFilter">Filtrar por materia</label>
+                <select class="w3-select w3-border w3-round w3-black w3-text-white" id="subjectFilter">
+                    <option value="">Todas las materias</option>
+                </select>
             </div>
+            <div class="w3-col m7 s12 w3-padding-16 w3-text-grey" id="bookCount" aria-live="polite">Cargando materiales…</div>
         </div>
-
+        <div class="w3-responsive">
+            <table class="w3-table w3-striped w3-bordered vault-card">
+                <thead>
+                    <tr class="w3-teal">
+                        <th>Materia</th>
+                        <th>Título</th>
+                        <th>Autor</th>
+                        <th>Categoría</th>
+                        <th>Páginas</th>
+                        <th>Compartido por</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="booksTableBody"></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -87,5 +65,6 @@
 <script src="../js/components/ui_handlers.js"></script>
 <script src="../js/utils/auth_helper.js"></script>
 <script src="../js/front_controllers/books_front_controller.js"></script>
+<script src="../js/front_controllers/announcements_front_controller.js"></script>
 </body>
 </html>

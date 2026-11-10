@@ -49,6 +49,24 @@
          const [rows] = await db.execute('CALL sp_find_books_by_user(?)', [userId]);
          return rows[0];
      }
+
+     async findLibraryForStudent(userId)
+     {
+         const [rows] = await db.execute('CALL sp_find_library_books(?)', [userId]);
+         return rows[0];
+     }
+
+     async findAll()
+     {
+         const [rows] = await db.execute('CALL sp_find_all_books()');
+         return rows[0];
+     }
+
+     async findVisibleById(id, userId, role)
+     {
+         const [rows] = await db.execute('CALL sp_find_book_visible_to_user(?, ?, ?)', [id, userId, role]);
+         return rows[0][0];
+     }
  
      /**
       * @brief Busca un documento específico validando mediante DB que pertenezca al usuario solicitante.
@@ -72,6 +90,12 @@
      {
          await db.execute('CALL sp_delete_book(?, ?)', [id, userId]);
          return true;
+     }
+
+     async deleteByAdmin(id)
+     {
+         const [rows] = await db.execute('CALL sp_delete_book_by_admin(?)', [id]);
+         return rows[0][0].affectedRows > 0;
      }
  }
  

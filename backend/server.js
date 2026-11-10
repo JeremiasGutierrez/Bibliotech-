@@ -48,6 +48,7 @@
  const authRoutes = require('./routes/auth_routes');
  const bookRoutes = require('./routes/book_routes');
  const adminRoutes = require('./routes/admin_routes');
+ const announcementRoutes = require('./routes/announcement_routes');
  const viewRoutes = require('./routes/view_routes');
  const testsRoutes = require('./routes/tests_routes');
  
@@ -75,13 +76,6 @@
  // --- 2. Servidores de Archivos Estáticos ---
  
  /**
-  * @brief Exposición de la carpeta física de subidas (PDFs).
-  * @note La creación física de este directorio en el disco es responsabilidad 
-  * del módulo de configuración `multer_config.js`.
-  */
- app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
- 
- /**
   * @brief Servidor estático del Frontend.
   * @details Permite que el navegador descargue libremente los recursos visuales 
   * (.html, .css, .js, .png) necesarios para renderizar las pantallas. 
@@ -94,6 +88,7 @@
  app.use('/api/auth', authRoutes);
  app.use('/api/books', bookRoutes);
  app.use('/api/admin', adminRoutes);
+ app.use('/api/announcements', announcementRoutes);
  
  // --- 4. Enrutador de Vistas (UI o Testing) ---
  

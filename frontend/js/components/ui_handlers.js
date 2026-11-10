@@ -110,6 +110,7 @@
              // Al vaciar el src, detenemos la descarga en segundo plano del PDF
              if (iframe) 
              {
+                 if (iframe.src.startsWith('blob:')) URL.revokeObjectURL(iframe.src);
                  iframe.src = '';
              }
          });
@@ -132,6 +133,8 @@
      }
  
      document.getElementById('pdfModalTitle').textContent = title;
-     document.getElementById('pdfIframe').src = pdfUrl;
+     const iframe = document.getElementById('pdfIframe');
+     if (iframe.src.startsWith('blob:')) URL.revokeObjectURL(iframe.src);
+     iframe.src = pdfUrl;
      modal.style.display = 'block';
  }
